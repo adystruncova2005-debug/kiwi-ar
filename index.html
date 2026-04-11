@@ -1,35 +1,23 @@
-<!DOCTYPE html>
-<html lang="cs">
-<head>
-    <title>AR_KIWI_PROJECT</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <style>
-        body { margin: 0; background-color: #f0f0f0; }
-        model-viewer { width: 100vw; height: 100vh; }
-        #ar-button {
-            position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%);
-            padding: 15px 25px; background: #000; color: #fff; border: none;
-            border-radius: 30px; font-family: sans-serif; font-weight: bold; cursor: pointer;
-        }
+      body { margin: 0; overflow: hidden; }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+      <a-assets>
+        <a-asset-item id="kiwiModel" src="./kiwi.glb"></a-asset-item>
+      </a-assets>
 
-    <model-viewer 
-        src="kiwi.glb" 
-        ar 
-        ar-modes="webxr scene-viewer quick-look" 
-        camera-controls 
-        shadow-intensity="1" 
-        environment-image="neutral"
-        exposure="1.2">
-        
-        <button slot="ar-button" id="ar-button">
-            ZOBRAZIT V PROSTORU (AR)
-        </button>
-    </model-viewer>
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-</body>
+      <a-entity mindar-image-target="targetIndex: 0">
+        <a-gltf-model src="#kiwiModel" position="0 0 0" rotation="0 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
+      </a-entity>
+    </a-scene>
+  </body>
 </html>
