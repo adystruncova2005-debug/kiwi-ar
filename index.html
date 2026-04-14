@@ -1,53 +1,73 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <style>
-      body { margin: 0; overflow: hidden; background: #000; }
-      .mindar-ui-overlay, .mindar-ui-scanning, .mindar-ui-loading { display: none !important; }
-      #startBtn {
-        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        z-index: 10000; padding: 25px; background: white; color: black;
-        border: none; font-family: sans-serif; font-weight: bold; font-size: 20px;
-        border-radius: 50px; cursor: pointer; box-shadow: 0 0 30px rgba(255,255,255,0.5);
-      }
+        body { margin: 0; overflow: hidden; background: #000; }
+        /* Skryje pomocné čáry MindAR */
+        .mindar-ui-overlay, .mindar-ui-scanning, .mindar-ui-loading { display: none !important; }
+        
+        /* Startovací tlačítko */
+        #ar-button {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 9999; padding: 20px 40px; background: white; color: black;
+            border: none; border-radius: 10px; font-family: sans-serif; font-weight: bold;
+            font-size: 18px; cursor: pointer; box-shadow: 0 0 20px rgba(255,255,255,0.5);
+        }
     </style>
-  </head>
-  <body>
-    <button id="startBtn">TAP TO START AR</button>
+</head>
+<body>
+    <button id="ar-button">SPUSTIT AR</button>
 
     <a-scene 
-      mindar-image="imageTargetSrc: ./targets.mind; uiScanning: no; uiLoading: no; maxSourceResolution: 1080;" 
-      color-space="sRGB" renderer="colorManagement: true" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
-      
-      <a-assets>
-        <video id="v" src="rytmus.mp4" preload="auto" loop="true" muted playsinline webkit-playsinline crossorigin="anonymous"></video>
-        <a-asset-item id="k" src="./kiwi.glb"></a-asset-item>
-      </a-assets>
+        mindar-image="imageTargetSrc: ./targets.mind; uiScanning: no; uiLoading: no; maxSourceResolution: 1080;" 
+        color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights: true" 
+        vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+        
+        <a-assets>
+            <a-asset-item id="kiwiModel" src="./kiwi.glb"></a-asset-item>
+            <video id="rytmusVideo" src="rytmus.mp4" preload="auto" loop="true" muted playsinline webkit-playsinline crossorigin="anonymous"></video>
+        </a-assets>
 
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-      <a-entity mindar-image-target="targetIndex: 0">
-        <a-video src="#v" width="1" height="1.41" position="0 0 0"></a-video>
-      </a-entity>
+        <a-entity mindar-image-target="targetIndex: 0">
+            <a-video src="#rytmusVideo" width="1" height="1.41" position="0 0 0"></a-video>
+        </a-entity>
 
-      <a-entity mindar-image-target="targetIndex: 1">
-        <a-gltf-model src="#k" position="0 0 0.1" rotation="0 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
-      </a-entity>
+        <a-entity mindar-image-target="targetIndex: 1">
+            <a-light type="ambient" intensity="0.7"></a-light>
+            <a-light type="directional" position="1 2 2" intensity="1.2"></a-light>
+            <a-gltf-model src="#kiwiModel" position="0 0 0.1" rotation="0 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
+        </a-entity>
     </a-scene>
 
     <script>
-      const video = document.getElementById('v');
-      const btn = document.getElementById('startBtn');
+        const video = document.getElementById('rytmusVideo');
+        const button = document.getElementById('ar-button');
+        const sceneEl = document.querySelector('a-scene');
 
-      btn.addEventListener('click', () => {
-        // Natvrdo vynutíme načtení a přehrávání
-        video.load();
-        video.play();
-        btn.style.display = 'none';
-      });
+        // Kliknutím na tlačítko iPhone "povolí" přehrávání videa
+        button.addEventListener('click', () => {
+            video.play().then(() => {
+                video.pause(); // Video se jen "odemkne" a čeká na plakát
+                button.style.display = 'none';
+            });
+        });
+
+        // Jakmile mobil uvidí plakát 0, pustí video
+        sceneEl.addEventListener("targetFound", event => {
+            if (event.detail.targetIndex === 0) {
+                video.play();
+            }
+        });
+
+        // Když plakát zmizí, video se pauzne (šetří baterku)
+        sceneEl.addEventListener("targetLost", event => {
+            video.pause();
+        });
     </script>
-  </body>
+</body>
 </html>
