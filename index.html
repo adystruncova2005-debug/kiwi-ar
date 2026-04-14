@@ -25,13 +25,13 @@
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity mindar-image-target="targetIndex: 0">
-        <a-light type="ambient" intensity="0.7"></a-light>
-        <a-light type="directional" position="1 2 2" intensity="1.2"></a-light>
-        <a-gltf-model src="#kiwiModel" position="0 0 0.1" rotation="0 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
+        <a-video src="#rytmusVideo" width="1" height="1.41" position="0 0 0"></a-video>
       </a-entity>
 
       <a-entity mindar-image-target="targetIndex: 1">
-        <a-video src="#rytmusVideo" width="1" height="1.41" position="0 0 0"></a-video>
+        <a-light type="ambient" intensity="0.7"></a-light>
+        <a-light type="directional" position="1 2 2" intensity="1.2"></a-light>
+        <a-gltf-model src="#kiwiModel" position="0 0 0.1" rotation="0 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
       </a-entity>
     </a-scene>
 
@@ -40,8 +40,8 @@
       const sceneEl = document.querySelector('a-scene');
       
       sceneEl.addEventListener("targetFound", event => {
-        // Pokud mobil najde druhý plakát (index 1), spustí video
-        if (event.detail.targetIndex === 1) {
+        // Teď pouštíme video, pokud najde index 0
+        if (event.detail.targetIndex === 0) {
           videoEl.play();
         }
       });
