@@ -8,27 +8,37 @@
         body { margin: 0; overflow: hidden; background: #000; }
         .mindar-ui-overlay, .mindar-ui-scanning, .mindar-ui-loading { display: none !important; }
         
-        /* Obří tlačítko přes celou obrazovku, aby to video fakt odemklo */
+        /* Status bar pro tebe, abychom viděli, co se děje */
+        #debug-log {
+            position: fixed; bottom: 10px; left: 10px; z-index: 10000;
+            background: rgba(0,0,0,0.8); color: #0f0; padding: 10px;
+            font-family: monospace; font-size: 12px; pointer-events: none;
+        }
+
         #ar-button {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10000; background: rgba(0,0,0,0.7); color: white;
+            z-index: 9999; background: rgba(0,0,0,0.6); color: white;
             border: none; font-family: sans-serif; font-weight: bold;
-            font-size: 24px; cursor: pointer; display: flex;
-            justify-content: center; align-items: center; text-align: center;
+            font-size: 20px; cursor: pointer; display: flex;
+            flex-direction: column; justify-content: center; align-items: center;
         }
     </style>
 </head>
 <body>
-    <button id="ar-button">KLIKNI KAMKOLIV<br>PRO SPUŠTĚNÍ ANIMACE</button>
+    <div id="debug-log">Status: Čekám na start...</div>
+    <button id="ar-button">
+        <span>ŤUKNI SEM PRO START</span>
+        <small style="font-weight: normal; margin-top: 10px;">(pak namiř na plakát)</small>
+    </button>
 
     <a-scene 
         mindar-image="imageTargetSrc: ./targets.mind; uiScanning: no; uiLoading: no;" 
-        color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights: true" 
+        color-space="sRGB" renderer="colorManagement: true" 
         vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
         
         <a-assets>
-            <a-asset-item id="kiwiModel" src="./kiwi.glb"></a-asset-item>
             <video id="rytmusVideo" src="rytmus.mp4" preload="auto" loop="true" muted playsinline webkit-playsinline crossorigin="anonymous"></video>
+            <a-asset-item id="kiwiModel" src="./kiwi.glb"></a-asset-item>
         </a-assets>
 
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
@@ -38,29 +48,40 @@
         </a-entity>
 
         <a-entity mindar-image-target="targetIndex: 1">
-            <a-light type="ambient" intensity="0.7"></a-light>
-            <a-light type="directional" position="1 2 2" intensity="1.2"></a-light>
-            <a-gltf-model src="#kiwiModel" position="0 0 0.1" rotation="0 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
+            <a-gltf-model src="#kiwiModel" position="0 0 0.1" scale="0.1 0.1 0.1"></a-gltf-model>
         </a-entity>
     </a-scene>
 
     <script>
         const video = document.getElementById('rytmusVideo');
         const button = document.getElementById('ar-button');
+        const log = document.getElementById('debug-log');
         const sceneEl = document.querySelector('a-scene');
 
-        // Jakmile uživatel klikne, video se rozjede a UŽ NESTAVÍ
         button.addEventListener('click', () => {
-            video.play();
-            button.style.display = 'none';
+            // Nucený start videa
+            video.currentTime = 0;
+            video.play().then(() => {
+                log.innerHTML = "Status: VIDEO HRAJE (Namiř na plakát)";
+                button.style.display = 'none';
+            }).catch(err => {
+                log.innerHTML = "CHYBA: " + err;
+            });
         });
 
-        // Pojistka: Pokud by se video náhodou pauzlo, při nalezení plakátu ho zkusíme spustit znova
         sceneEl.addEventListener("targetFound", event => {
             if (event.detail.targetIndex === 0) {
+                log.innerHTML = "Status: PLAKÁT NAJDEN - POUŠTÍM";
                 video.play();
             }
         });
+
+        // Kontrola, jestli se video nezaseklo
+        setInterval(() => {
+            if (!video.paused) {
+                log.innerHTML = "Status: VIDEO BĚŽÍ (" + video.currentTime.toFixed(1) + "s)";
+            }
+        }, 500);
     </script>
 </body>
 </html>
