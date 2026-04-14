@@ -6,11 +6,13 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <style>
       body { margin: 0; overflow: hidden; background: #000; }
-      /* Tohle natvrdo skryje všechno UI od MindAR (čáry, načítání) */
+      /* Tohle schová všechny čáry a loga MindAR */
       .mindar-ui-overlay, .mindar-ui-scanning, .mindar-ui-loading { display: none !important; }
     </style>
   </head>
-  <body onclick="unlockVideo()"> <a-scene 
+  <body onclick="document.getElementById('rytmusVideo').play(); document.getElementById('rytmusVideo').pause();">
+
+    <a-scene 
       mindar-image="imageTargetSrc: ./targets.mind; uiScanning: no; uiLoading: no; maxSourceResolution: 1080;" 
       color-space="sRGB" 
       renderer="colorManagement: true, physicallyCorrectLights: true" 
@@ -39,16 +41,7 @@
       const video = document.getElementById('rytmusVideo');
       const scene = document.querySelector('a-scene');
 
-      // Trika: Jakmile uživatel poprvé klepne na obrazovku (třeba při ostření), video se "připraví"
-      function unlockVideo() {
-        video.play().then(() => {
-          video.pause(); 
-          console.log("Video odemknuto a připraveno");
-        });
-        // Odstraníme event listener, aby se to nespouštělo při každým kliku
-        document.body.removeAttribute('onclick');
-      }
-
+      // Automatické spuštění/pauza podle toho, jestli mobil vidí plakát
       scene.addEventListener("targetFound", event => {
         if (event.detail.targetIndex === 0) {
           video.play();
