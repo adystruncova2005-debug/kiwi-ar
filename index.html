@@ -6,11 +6,17 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <style>
       body { margin: 0; overflow: hidden; background: #000; }
-      /* Tohle schová všechny čáry a loga MindAR */
       .mindar-ui-overlay, .mindar-ui-scanning, .mindar-ui-loading { display: none !important; }
+      
+      /* Neviditelná vrstva přes celý displej */
+      #overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        z-index: 99999; background: rgba(0,0,0,0);
+      }
     </style>
   </head>
-  <body onclick="document.getElementById('rytmusVideo').play(); document.getElementById('rytmusVideo').pause();">
+  <body>
+    <div id="overlay"></div>
 
     <a-scene 
       mindar-image="imageTargetSrc: ./targets.mind; uiScanning: no; uiLoading: no; maxSourceResolution: 1080;" 
@@ -39,9 +45,20 @@
 
     <script>
       const video = document.getElementById('rytmusVideo');
+      const overlay = document.getElementById('overlay');
       const scene = document.querySelector('a-scene');
 
-      // Automatické spuštění/pauza podle toho, jestli mobil vidí plakát
+      // Jakmile uživatel poprvé sáhne na displej, video se "připraví"
+      overlay.addEventListener('touchstart', unlock, {once: true});
+      overlay.addEventListener('click', unlock, {once: true});
+
+      function unlock() {
+        video.play();
+        video.pause();
+        overlay.style.display = 'none';
+        console.log("Video odemknuto");
+      }
+
       scene.addEventListener("targetFound", event => {
         if (event.detail.targetIndex === 0) {
           video.play();
