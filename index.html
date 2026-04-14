@@ -39,8 +39,8 @@
       const videoEl = document.querySelector('#rytmusVideo');
       const sceneEl = document.querySelector('a-scene');
       
-      // Spustí video jen když foťák vidí ten správný plakát (index 1)
       sceneEl.addEventListener("targetFound", event => {
+        // Pokud mobil najde druhý plakát (index 1), spustí video
         if (event.detail.targetIndex === 1) {
           videoEl.play();
         }
