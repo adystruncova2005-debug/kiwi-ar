@@ -6,20 +6,11 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <style>
       body { margin: 0; overflow: hidden; background: #000; }
-      .mindar-ui-overlay { display: none !important; }
-      
-      #startButton {
-        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        z-index: 10000; padding: 20px 40px; background: white; color: black;
-        border: none; font-family: sans-serif; font-weight: bold; font-size: 18px;
-        border-radius: 10px; cursor: pointer;
-      }
+      /* Tohle natvrdo skryje všechno UI od MindAR (čáry, načítání) */
+      .mindar-ui-overlay, .mindar-ui-scanning, .mindar-ui-loading { display: none !important; }
     </style>
   </head>
-  <body>
-    <button id="startButton">SPUSTIT AR</button>
-
-    <a-scene 
+  <body onclick="unlockVideo()"> <a-scene 
       mindar-image="imageTargetSrc: ./targets.mind; uiScanning: no; uiLoading: no; maxSourceResolution: 1080;" 
       color-space="sRGB" 
       renderer="colorManagement: true, physicallyCorrectLights: true" 
@@ -46,19 +37,17 @@
 
     <script>
       const video = document.getElementById('rytmusVideo');
-      const btn = document.getElementById('startButton');
       const scene = document.querySelector('a-scene');
 
-      btn.addEventListener('click', () => {
-        // Tohle "nakopne" video v mobilu
+      // Trika: Jakmile uživatel poprvé klepne na obrazovku (třeba při ostření), video se "připraví"
+      function unlockVideo() {
         video.play().then(() => {
-            console.log("Video jede");
-            btn.style.display = 'none';
-        }).catch(err => {
-            console.log("Chyba:", err);
-            btn.innerHTML = "Zkus kliknout znova";
+          video.pause(); 
+          console.log("Video odemknuto a připraveno");
         });
-      });
+        // Odstraníme event listener, aby se to nespouštělo při každým kliku
+        document.body.removeAttribute('onclick');
+      }
 
       scene.addEventListener("targetFound", event => {
         if (event.detail.targetIndex === 0) {
