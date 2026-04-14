@@ -7,9 +7,17 @@
     <style>
       body { margin: 0; overflow: hidden; }
       .mindar-ui-overlay { display: none !important; }
+      /* Styl pro startovací tlačítko */
+      #startButton {
+        position: fixed; top: 20px; left: 20px; z-index: 999;
+        padding: 15px; background: #000; color: #fff; border: 1px solid #fff;
+        font-family: monospace; cursor: pointer;
+      }
     </style>
   </head>
   <body>
+    <div id="startButton">KLIKNI PRO START AR</div>
+
     <a-scene 
       mindar-image="imageTargetSrc: ./targets.mind; uiScanning: no; uiLoading: no; maxSourceResolution: 1080;" 
       color-space="sRGB" 
@@ -19,7 +27,7 @@
       
       <a-assets>
         <a-asset-item id="kiwiModel" src="./kiwi.glb"></a-asset-item>
-        <video id="rytmusVideo" src="rytmus.mp4" preload="auto" loop="true" muted playsinline></video>
+        <video id="rytmusVideo" src="rytmus.mp4" preload="auto" loop="true" muted playsinline webkit-playsinline crossorigin="anonymous"></video>
       </a-assets>
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
@@ -37,10 +45,18 @@
 
     <script>
       const videoEl = document.querySelector('#rytmusVideo');
+      const startButton = document.querySelector('#startButton');
       const sceneEl = document.querySelector('a-scene');
-      
+
+      // Jakmile klikneš na tlačítko, video se "připraví" a tlačítko zmizí
+      startButton.addEventListener('click', () => {
+        videoEl.play().then(() => {
+          videoEl.pause(); // Hned ho pauzneme, aby čekalo na plakát
+          startButton.style.display = 'none';
+        });
+      });
+
       sceneEl.addEventListener("targetFound", event => {
-        // Teď pouštíme video, pokud najde index 0
         if (event.detail.targetIndex === 0) {
           videoEl.play();
         }
