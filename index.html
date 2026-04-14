@@ -7,49 +7,46 @@
     <style>
       body { margin: 0; overflow: hidden; background: #000; }
       .mindar-ui-overlay, .mindar-ui-scanning, .mindar-ui-loading { display: none !important; }
-      #btn {
+      #startBtn {
         position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        z-index: 10000; padding: 20px; background: white; border: none;
-        font-family: sans-serif; font-weight: bold; border-radius: 10px;
+        z-index: 10000; padding: 25px; background: white; color: black;
+        border: none; font-family: sans-serif; font-weight: bold; font-size: 20px;
+        border-radius: 50px; cursor: pointer; box-shadow: 0 0 30px rgba(255,255,255,0.5);
       }
     </style>
   </head>
   <body>
-    <button id="btn">KLIKNI A NAMIŘ NA PLAKÁT</button>
+    <button id="startBtn">TAP TO START AR</button>
 
     <a-scene 
       mindar-image="imageTargetSrc: ./targets.mind; uiScanning: no; uiLoading: no; maxSourceResolution: 1080;" 
-      color-space="sRGB" renderer="colorManagement: true" vr-mode-ui="enabled: false">
+      color-space="sRGB" renderer="colorManagement: true" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
       
       <a-assets>
-        <video id="vid" src="rytmus.mp4" preload="auto" loop="true" muted playsinline webkit-playsinline crossorigin="anonymous"></video>
-        <a-asset-item id="kiwi" src="./kiwi.glb"></a-asset-item>
+        <video id="v" src="rytmus.mp4" preload="auto" loop="true" muted playsinline webkit-playsinline crossorigin="anonymous"></video>
+        <a-asset-item id="k" src="./kiwi.glb"></a-asset-item>
       </a-assets>
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity mindar-image-target="targetIndex: 0">
-        <a-video src="#vid" width="1" height="1.41" position="0 0 0"></a-video>
+        <a-video src="#v" width="1" height="1.41" position="0 0 0"></a-video>
       </a-entity>
 
       <a-entity mindar-image-target="targetIndex: 1">
-        <a-gltf-model src="#kiwi" position="0 0 0.1" scale="0.1 0.1 0.1"></a-gltf-model>
+        <a-gltf-model src="#k" position="0 0 0.1" rotation="0 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
       </a-entity>
     </a-scene>
 
     <script>
-      const v = document.getElementById('vid');
-      const b = document.getElementById('btn');
-      
-      // Totální reset a spuštění po kliku
-      b.addEventListener('click', () => {
-        v.play(); 
-        b.style.display = 'none';
-      });
+      const video = document.getElementById('v');
+      const btn = document.getElementById('startBtn');
 
-      // Pojistka: Když se najde plakát, zkusíme play znova
-      document.querySelector('a-scene').addEventListener("targetFound", () => {
-        v.play();
+      btn.addEventListener('click', () => {
+        // Natvrdo vynutíme načtení a přehrávání
+        video.load();
+        video.play();
+        btn.style.display = 'none';
       });
     </script>
   </body>
