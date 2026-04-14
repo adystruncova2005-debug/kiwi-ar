@@ -5,18 +5,19 @@
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <style>
-      body { margin: 0; overflow: hidden; }
+      body { margin: 0; overflow: hidden; background: #000; }
       .mindar-ui-overlay { display: none !important; }
-      /* Styl pro startovací tlačítko */
+      
       #startButton {
-        position: fixed; top: 20px; left: 20px; z-index: 999;
-        padding: 15px; background: #000; color: #fff; border: 1px solid #fff;
-        font-family: monospace; cursor: pointer;
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        z-index: 10000; padding: 20px 40px; background: white; color: black;
+        border: none; font-family: sans-serif; font-weight: bold; font-size: 18px;
+        border-radius: 10px; cursor: pointer;
       }
     </style>
   </head>
   <body>
-    <div id="startButton">KLIKNI PRO START AR</div>
+    <button id="startButton">SPUSTIT AR</button>
 
     <a-scene 
       mindar-image="imageTargetSrc: ./targets.mind; uiScanning: no; uiLoading: no; maxSourceResolution: 1080;" 
@@ -37,33 +38,36 @@
       </a-entity>
 
       <a-entity mindar-image-target="targetIndex: 1">
-        <a-light type="ambient" intensity="0.7"></a-light>
+        <a-light type="ambient" intensity="0.8"></a-light>
         <a-light type="directional" position="1 2 2" intensity="1.2"></a-light>
         <a-gltf-model src="#kiwiModel" position="0 0 0.1" rotation="0 0 0" scale="0.1 0.1 0.1"></a-gltf-model>
       </a-entity>
     </a-scene>
 
     <script>
-      const videoEl = document.querySelector('#rytmusVideo');
-      const startButton = document.querySelector('#startButton');
-      const sceneEl = document.querySelector('a-scene');
+      const video = document.getElementById('rytmusVideo');
+      const btn = document.getElementById('startButton');
+      const scene = document.querySelector('a-scene');
 
-      // Jakmile klikneš na tlačítko, video se "připraví" a tlačítko zmizí
-      startButton.addEventListener('click', () => {
-        videoEl.play().then(() => {
-          videoEl.pause(); // Hned ho pauzneme, aby čekalo na plakát
-          startButton.style.display = 'none';
+      btn.addEventListener('click', () => {
+        // Tohle "nakopne" video v mobilu
+        video.play().then(() => {
+            console.log("Video jede");
+            btn.style.display = 'none';
+        }).catch(err => {
+            console.log("Chyba:", err);
+            btn.innerHTML = "Zkus kliknout znova";
         });
       });
 
-      sceneEl.addEventListener("targetFound", event => {
+      scene.addEventListener("targetFound", event => {
         if (event.detail.targetIndex === 0) {
-          videoEl.play();
+          video.play();
         }
       });
 
-      sceneEl.addEventListener("targetLost", event => {
-        videoEl.pause();
+      scene.addEventListener("targetLost", event => {
+        video.pause();
       });
     </script>
   </body>
