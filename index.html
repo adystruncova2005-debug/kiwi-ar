@@ -5,61 +5,35 @@
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; }
-        /* Schováme veškeré UI MindAR */
+        body { margin: 0; overflow: hidden; }
         .mindar-ui-overlay, .mindar-ui-scanning, .mindar-ui-loading { display: none !important; }
-        
-        /* Čisté, neviditelné pole přes celý displej pro start videa */
-        #ar-button {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 9999; background: rgba(0,0,0,0.5); border: none; cursor: pointer;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999; cursor: pointer; }
     </style>
 </head>
 <body>
-    <button id="ar-button"></button>
-
+    <div id="overlay"></div>
     <a-scene 
-        mindar-image="imageTargetSrc: ./targets.mind; uiScanning: no; uiLoading: no; filterMinCF: 0.0001; filterBeta: 20;" 
-        color-space="sRGB" renderer="colorManagement: true" 
+        mindar-image="imageTargetSrc: ./targets.mind; filterMinCF: 0.0001; filterBeta: 1000; missTolerance: 100; warmupSteps: 10;" 
+        embedded color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights: true" 
         vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
         
         <a-assets>
-            <video id="rytmusVideo" src="rytmus.mp4" preload="auto" loop="true" muted playsinline webkit-playsinline crossorigin="anonymous"></video>
-            <a-asset-item id="kiwiModel" src="./kiwi.glb"></a-asset-item>
+            <video id="v" src="rytmus.mp4" loop="true" muted playsinline webkit-playsinline crossorigin="anonymous"></video>
         </a-assets>
 
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
         <a-entity mindar-image-target="targetIndex: 0">
-            <a-video src="#rytmusVideo" width="1" height="1.41" position="0 0 0"></a-video>
-        </a-entity>
-
-        <a-entity mindar-image-target="targetIndex: 1">
-            <a-gltf-model src="#kiwiModel" position="0 0 0.1" scale="0.1 0.1 0.1"></a-gltf-model>
+            <a-video src="#v" width="1" height="1.41" position="0 0 0"></a-video>
         </a-entity>
     </a-scene>
 
     <script>
-        const video = document.getElementById('rytmusVideo');
-        const button = document.getElementById('ar-button');
-        const sceneEl = document.querySelector('a-scene');
-
-        // Kliknutím kamkoliv odemkneme video
-        button.addEventListener('click', () => {
-            video.currentTime = 0;
-            video.play().then(() => {
-                button.style.display = 'none';
-            }).catch(err => {
-                console.error("Chyba videa:", err);
-            });
-        });
-
-        sceneEl.addEventListener("targetFound", event => {
-            if (event.detail.targetIndex === 0) {
-                video.play();
-            }
+        const v = document.querySelector('#v');
+        const o = document.querySelector('#overlay');
+        o.addEventListener('click', () => {
+            v.play();
+            o.style.display = 'none';
         });
     </script>
 </body>
