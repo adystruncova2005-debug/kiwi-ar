@@ -1,44 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     <style>
-        /* Totální vyčištění všeho, co by mohlo dělat bílé okraje */
-        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000; }
-        
-        /* Síla, která roztáhne A-Frame plátno přes úplně celý displej */
-        canvas {
-            width: 100% !important;
-            height: 100% !important;
-            position: absolute;
-            top: 0;
-            left: 0;
+        body { margin: 0; overflow: hidden; }
+        /* Tohle tlačítko je v rohu, aby nezavazelo a hned jsi věděla, jestli je pryč */
+        #start-btn {
+            position: fixed; top: 20px; left: 20px; z-index: 9999;
+            padding: 15px; background: #ff0000; color: white;
+            border: none; border-radius: 8px; font-weight: bold;
         }
-
         .mindar-ui-scanning, .mindar-ui-loading { display: none !important; }
-
-        #overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10000; background: rgba(0,0,0,0.8); color: white;
-            display: flex; justify-content: center; align-items: center;
-            font-family: sans-serif; font-weight: bold; cursor: pointer;
-            text-align: center; padding: 20px;
-        }
     </style>
 </head>
 <body>
-    <div id="overlay">KLIKNI SEM PRO START AR<br><small>(a povol kameru)</small></div>
+    <button id="start-btn">KLIKNI PRO START</button>
 
     <a-scene 
         mindar-image="imageTargetSrc: ./targets.mind; filterMinCF: 0.0001; filterBeta: 0.001; uiScanning: no;" 
-        embedded="false"
-        loading-screen="enabled: false"
-        color-space="sRGB" 
-        renderer="colorManagement: true, precision: medium"
-        vr-mode-ui="enabled: false" 
-        device-orientation-permission-ui="enabled: false">
+        embedded color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights: true" 
+        vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
         
         <a-assets>
             <video id="v" src="rytmus.mp4" loop="true" muted playsinline webkit-playsinline crossorigin="anonymous"></video>
@@ -48,7 +31,7 @@
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
         <a-entity mindar-image-target="targetIndex: 0">
-            <a-video src="#v" width="1" height="1.41" position="0 0 0"></a-video>
+            <a-video src="#v" width="1" height="1.41"></a-video>
         </a-entity>
 
         <a-entity mindar-image-target="targetIndex: 1">
@@ -58,16 +41,11 @@
 
     <script>
         const v = document.querySelector('#v');
-        const o = document.querySelector('#overlay');
-        o.addEventListener('click', () => {
-            v.play();
-            o.style.display = 'none';
-        });
-
-        // Trik pro iOS: Vynucení změny velikosti po startu
-        window.addEventListener('resize', () => {
-            const scene = document.querySelector('a-scene');
-            scene.resize();
+        const btn = document.querySelector('#start-btn');
+        
+        btn.addEventListener('click', () => {
+            v.play(); // Odemkne video
+            btn.style.display = 'none'; // Schová tlačítko
         });
     </script>
 </body>
