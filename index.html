@@ -6,29 +6,31 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     
     <style>
-        body { margin: 0; overflow: hidden; background: #000; }
+        /* Vynutíme černou barvu všude, aby nic neprobliklo */
+        body { margin: 0; overflow: hidden; background-color: #000; }
         
-        /* Skryje pomocné grafiky MindAR, aby web vypadal čistě */
+        /* Skryje pomocné grafiky MindAR */
         .mindar-ui-overlay, .mindar-ui-scanning, .mindar-ui-loading { display: none !important; }
         
-        /* Neviditelné tlačítko přes celý displej - nutné pro odemčení videa na iPhone */
+        /* Tlačítko uděláme černé, aby zakrylo tu "modrou" startovací fázi */
         #ar-button {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 9999; background: transparent; border: none; cursor: pointer;
+            z-index: 9999; background: #000; color: white; border: none; 
+            cursor: pointer; font-family: sans-serif; font-size: 16px;
         }
     </style>
 </head>
 <body>
-    <button id="ar-button"></button>
+    <button id="ar-button">POKRAČOVAT DO AR</button>
 
     <a-scene 
         mindar-image="imageTargetSrc: ./targets.mind; uiScanning: no; uiLoading: no; filterMinCF: 0.0001; filterBeta: 1000;" 
+        loading-screen="enabled: false"
         color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights: true" 
         vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
         
         <a-assets>
             <video id="rytmusVideo" src="rytmus.mp4" preload="auto" loop="true" muted playsinline webkit-playsinline crossorigin="anonymous"></video>
-            
             <a-asset-item id="kiwiModel" src="./kiwi.glb"></a-asset-item>
         </a-assets>
 
@@ -48,15 +50,12 @@
         const button = document.getElementById('ar-button');
         const sceneEl = document.querySelector('a-scene');
 
-        // Jakmile klikneš kamkoliv na displej, video se "odemkne" a spustí
         button.addEventListener('click', () => {
             video.play().then(() => {
-                // Tlačítko zmizí, aby neblokovalo další klikání v AR (pokud bys ho potřebovala)
                 button.style.display = 'none';
             });
         });
 
-        // Pojistka pro spuštění videa při nalezení plakátu
         sceneEl.addEventListener("targetFound", event => {
             if (event.detail.targetIndex === 0) {
                 video.play();
