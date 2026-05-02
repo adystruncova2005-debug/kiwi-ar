@@ -1,105 +1,131 @@
 <!DOCTYPE html>
+
 <html>
+
 <head>
+
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
     
+
     <style>
+
+        /* Vynutíme černou barvu všude, aby nic neprobliklo */
+
         body { margin: 0; overflow: hidden; background-color: #000; }
+
         
+
+        /* Skryje pomocné grafiky MindAR */
+
         .mindar-ui-overlay, .mindar-ui-scanning, .mindar-ui-loading { display: none !important; }
+
         
+
+        /* Tlačítko uděláme černé, aby zakrylo tu "modrou" startovací fázi */
+
         #ar-button {
+
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+
             z-index: 9999; background: #000; color: white; border: none; 
+
             cursor: pointer; font-family: sans-serif; font-size: 16px;
+
         }
 
-        /* Kontejner pro fullscreen video, který je na začátku skrytý */
-        #fullscreen-container {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            background: #000;
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        #fullscreen-container video {
-            width: 100%;
-            height: auto;
-            max-height: 100%;
-        }
-
-        /* Malý křížek pro návrat ke skenování */
-        #close-btn {
-            position: absolute; top: 20px; right: 20px;
-            background: rgba(255,255,255,0.3); color: white;
-            border: none; padding: 10px; border-radius: 5px;
-            z-index: 10001; cursor: pointer;
-        }
     </style>
+
 </head>
+
 <body>
+
     <button id="ar-button">POKRAČOVAT DO AR</button>
 
-    <!-- Fullscreen vrstva -->
-    <div id="fullscreen-container">
-        <button id="close-btn">ZAVŘÍT</button>
-        <video id="rytmusVideo" src="rytmus.mp4" loop playsinline crossorigin="anonymous"></video>
-    </div>
+
 
     <a-scene 
+
         mindar-image="imageTargetSrc: ./targets.mind; uiScanning: no; uiLoading: no; filterMinCF: 0.0001; filterBeta: 0.01;" 
+
         loading-screen="enabled: false"
+
         color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights: true" 
+
         vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+
         
+
         <a-assets>
+
+            <video id="rytmusVideo" src="rytmus.mp4" preload="auto" loop="true" muted playsinline webkit-playsinline crossorigin="anonymous"></video>
+
             <a-asset-item id="kiwiModel" src="./kiwi.glb"></a-asset-item>
+
         </a-assets>
+
+
 
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <!-- Target 0 jen "detekuje" a spustí akci v JavaScriptu -->
-        <a-entity mindar-image-target="targetIndex: 0" id="rytmusTarget"></a-entity>
+
+
+        <a-entity mindar-image-target="targetIndex: 0">
+
+            <a-video src="#rytmusVideo" width="1" height="1.41" position="0 0 0"></a-video>
+
+        </a-entity>
+
+
 
         <a-entity mindar-image-target="targetIndex: 1">
+
             <a-gltf-model src="#kiwiModel" position="0 0 0.1" scale="0.1 0.1 0.1"></a-gltf-model>
+
         </a-entity>
+
     </a-scene>
 
+
+
     <script>
+
         const video = document.getElementById('rytmusVideo');
+
         const button = document.getElementById('ar-button');
-        const container = document.getElementById('fullscreen-container');
-        const closeBtn = document.getElementById('close-btn');
+
         const sceneEl = document.querySelector('a-scene');
 
-        // První kliknutí odemkne video (nutné pro mobily)
+
+
         button.addEventListener('click', () => {
+
             video.play().then(() => {
-                video.pause(); // Hned stopneme, čekáme na plakát
+
                 button.style.display = 'none';
+
             });
+
         });
 
-        // Když se najde plakát (Target 0)
+
+
         sceneEl.addEventListener("targetFound", event => {
+
             if (event.detail.targetIndex === 0) {
-                container.style.display = 'flex';
+
                 video.play();
+
             }
+
         });
 
-        // Tlačítko pro zavření fullscreenu a návrat ke skeneru
-        closeBtn.addEventListener('click', () => {
-            video.pause();
-            container.style.display = 'none';
-        });
     </script>
+
 </body>
+
 </html>
